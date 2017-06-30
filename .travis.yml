@@ -5,6 +5,8 @@ os:
 
 addons:
   apt:
+    sources:
+      - sourceline: ppa:saltmakrell/ppa
     packages:
       - make
       - iverilog
