@@ -10,7 +10,6 @@ addons:
     packages:
       - make
       - iverilog
-      - yosys
 
 before_script:
   - make --no-print-directory

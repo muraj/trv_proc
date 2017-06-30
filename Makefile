@@ -1,6 +1,9 @@
 MODULE_TESTS := $(basename $(wildcard *_tb.v))
-SYNTH_MODULE_TESTS := $(subst _tb,_synth_tb,$(MODULE_TESTS))
 PROG_TESTS := $(basename $(notdir $(wildcard progs/*_prog.s)))
+ifdef ENABLE_SYNTH
+SYNTH_MODULE_TESTS := $(subst _tb,_synth_tb,$(MODULE_TESTS))
+SYNTH_PROG_TESTS := $(subst _tb,_synth_tb,$(PROG_TESTS))
+endif
 HEADERS := $(wildcard *.vh)
 IVERILOG_FLAGS :=
 OUT := out
@@ -46,9 +49,9 @@ prog_runner:	progs/prog_runner.v
 build:	$(OUT)
 	@$(MAKE) $(addsuffix .build,$(MODULE_TESTS) $(SYNTH_MODULE_TESTS) $(PROG_TESTS))
 test:
-	@$(MAKE) $(addsuffix .test,$(MODULE_TESTS))
-	@$(MAKE) $(addsuffix .test,$(SYNTH_MODULE_TESTS))
-	@#$(MAKE) $(addsuffix .test,$(PROG_TESTS))
-	@#$(MAKE) $(addsuffix .test,$(SYNTH_PROG_TESTS))
+	@if [[ ! -z "$(MODULE_TESTS)" ]]; then $(MAKE) $(addsuffix .test,$(MODULE_TESTS)); fi
+	@if [[ ! -z "$(SYNTH_MODULE_TESTS)" ]]; then $(MAKE) $(addsuffix .test,$(SYNTH_MODULE_TESTS)); fi
+	@if [[ ! -z "$(PROG_TESTS)" ]]; then $(MAKE) $(addsuffix .test,$(PROG_TESTS)); fi
+	@if [[ ! -z "$(SYNTH_PROG_TESTS)" ]]; then $(MAKE) $(addsuffix .test,$(SYNTH_PROG_TESTS)); fi
 clean:
 	$(RM) -r $(OUT)
