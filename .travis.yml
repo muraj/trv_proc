@@ -1,0 +1,17 @@
+language: c
+
+os:
+  - linux
+
+addons:
+  apt:
+    packages:
+      - make
+      - iverilog
+      - yosys
+
+before_script:
+  - make --no-print-directory
+
+script:
+  - make --no-print-directory --keep-going test
