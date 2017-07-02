@@ -34,6 +34,8 @@ ifneq (SYNTH,)
 	SYNTH_PROG_TESTS := $(subst _tb,_synth_tb,$(PROG_TESTS))
 endif
 
+include module_parameters.mk
+
 all:	build
 .PRECIOUS:	$(OUT)/%_synth.v
 
@@ -41,8 +43,13 @@ $(OUT):
 	-@mkdir -p $@
 
 rtl/%.v:	$(HEADERS)
-$(OUT)/%_synth.v:	rtl/%.v synth.ys
-	$(SYNTH) -o $@ $^ -q -l $(OUT)/$*_synth.log
+$(OUT)/%_synth.v:	rtl/%.v module_parameters.mk
+	$(SYNTH) -o $@ $< -q -l $(OUT)/$*_synth.log \
+		-p "read_liberty -lib synth/stdcells.lib" \
+		-p "synth -top pipe_mult" \
+		-p "dfflibmap -liberty synth/stdcells.lib" \
+		-p "abc -constr synth/stdcells.constr -dff -liberty synth/stdcells.lib -D $(DELAY)" \
+		-p "stat -liberty synth/stdcells.lib"
 $(OUT)/%_synth_tb:	tb/%_tb.v $(OUT)/%_synth.v
 	$(VERILOG) -o $@ $^ synth/stdcells.v $(VFLAGS)
 $(OUT)/%_tb:	tb/%_tb.v rtl/%.v
