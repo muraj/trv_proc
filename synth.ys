@@ -29,3 +29,4 @@ abc -constr synth/stdcells.constr -dff -liberty synth/stdcells.lib -D 7000 ;;
 opt_clean
 
 stat -liberty synth/stdcells.lib
+show pipe_mult

@@ -74,7 +74,7 @@ prog_runner:	progs/prog_runner.v
 
 build:	$(OUT)
 	@$(MAKE) $(addsuffix .build,$(SIM_MODULE_TESTS) $(SIM_PROG_TESTS))
-synth:	$(OUT)
+synth_build:	$(OUT)
 	@$(MAKE) $(addsuffix .build,$(SYNTH_MODULE_TESTS) $(SYNTH_PROG_TESTS))
 test:
 	@if [ ! -z "$(SIM_MODULE_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(SIM_MODULE_TESTS)); fi
