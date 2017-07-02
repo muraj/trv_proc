@@ -9,7 +9,6 @@ module sync_dp_ram
   input wire [0 +: ADDR_WIDTH] wr_addr,
   input wire [0 +: DATA_WIDTH] wr_data,
 
-  input wire rd_en,
   input wire [0 +: ADDR_WIDTH] rd_addr,
   output wire [0 +: DATA_WIDTH] rd_data,
 );
@@ -19,7 +18,8 @@ module sync_dp_ram
   assign rd_data = mem[rd_addr];
 
   always @(posedge clk) begin
-    mem[wr_addr] <= wr_en ? wr_data : mem[wr_addr];
+    if (wr_en)
+      mem[wr_addr] <= wr_data;
   end
 
 endmodule

@@ -24,11 +24,12 @@ OUT := out
 
 MODULE_TESTS := $(notdir $(basename $(wildcard tb/*_tb.v)))
 PROG_TESTS := $(notdir $(basename $(notdir $(wildcard progs/*_prog.s))))
+VERILOG ?= $(shell which iverilog)
+SYNTH ?= $(shell which yosys)
 
-ifeq ($(SYNTH),)
-	SIM_MODULE_TESTS := $(MODULE_TESTS)
-	SIM_PROG_TESTS := $(PROG_TESTS)
-else
+SIM_MODULE_TESTS := $(MODULE_TESTS)
+SIM_PROG_TESTS := $(PROG_TESTS)
+ifneq (SYNTH,)
 	SYNTH_MODULE_TESTS := $(subst _tb,_synth_tb,$(MODULE_TESTS))
 	SYNTH_PROG_TESTS := $(subst _tb,_synth_tb,$(PROG_TESTS))
 endif
@@ -40,12 +41,12 @@ $(OUT):
 	-@mkdir -p $@
 
 rtl/%.v:	$(HEADERS)
-$(OUT)/%_synth.v:	synth.ys rtl/%.v
-	$(SYNTH) -o $@ rtl/$*.v synth.ys
+$(OUT)/%_synth.v:	rtl/%.v synth.ys
+	$(SYNTH) -o $@ $^ -q -l $(OUT)/$*_synth.log
 $(OUT)/%_synth_tb:	tb/%_tb.v $(OUT)/%_synth.v
-	iverilog -o $@ $^ $(VFLAGS)
+	$(VERILOG) -o $@ $^ synth/stdcells.v $(VFLAGS)
 $(OUT)/%_tb:	tb/%_tb.v rtl/%.v
-	iverilog -o $@ $^ $(VFLAGS)
+	$(VERILOG) -o $@ $^ $(VFLAGS)
 
 %_tb.build:	$(OUT)
 	@$(MAKE) $(OUT)/$*_tb
@@ -72,10 +73,13 @@ prog_runner:	progs/prog_runner.v
 	@if $(MAKE) $*_tb.run | grep -q '*** PASSED ***'; then echo PASSED; else echo FAILED; exit 1; fi
 
 build:	$(OUT)
-	@$(MAKE) $(addsuffix .build,$(SIM_MODULE_TESTS) $(SYNTH_MODULE_TESTS) $(SIM_PROG_TESTS) $(SYNTH_PROG_TESTS))
+	@$(MAKE) $(addsuffix .build,$(SIM_MODULE_TESTS) $(SIM_PROG_TESTS))
+synth:	$(OUT)
+	@$(MAKE) $(addsuffix .build,$(SYNTH_MODULE_TESTS) $(SYNTH_PROG_TESTS))
 test:
 	@if [ ! -z "$(SIM_MODULE_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(SIM_MODULE_TESTS)); fi
 	@if [ ! -z "$(SIM_PROG_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(SIM_PROG_TESTS)); fi
+synth_test:
 	@if [ ! -z "$(SYNTH_MODULE_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(SYNTH_MODULE_TESTS)); fi
 	@if [ ! -z "$(SYNTH_PROG_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(SYNTH_PROG_TESTS)); fi
 clean:

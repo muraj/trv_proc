@@ -18,17 +18,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# check design hierarchy
-hierarchy
+read_liberty -lib synth/stdcells.lib
 
-# translate processes (always blocks)
-proc; opt
+synth
 
-# detect and optimize FSM encodings
-fsm; opt
+dfflibmap -liberty synth/stdcells.lib
+abc -constr synth/stdcells.constr -dff -liberty synth/stdcells.lib -D 7000 ;;
 
-# implement memories (arrays)
-memory; opt
+# cleanup
+opt_clean
 
-# convert to gate logic
-techmap; opt
+stat -liberty synth/stdcells.lib

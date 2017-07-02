@@ -18,12 +18,11 @@ addons:
       - yosys
 
 env:
-  matrix:
-    - SYNTH=
-    - SYNTH="$(which yosys)"
+  - SYNTH=
+  - SYNTH=synth_
 
 before_script:
-  - make --no-print-directory
+  - make --no-print-directory ${SYNTH}build
 
 script:
-  - make --no-print-directory --keep-going test
+  - make --no-print-directory --keep-going ${SYNTH}test

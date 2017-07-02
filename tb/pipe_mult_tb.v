@@ -29,7 +29,7 @@ reg [1024*8-1:0] vcdfn;
 reg [`BIT_WIDTH-1:0] stage_a[`STAGES:0];
 reg [`BIT_WIDTH-1:0] stage_b[`STAGES:0];
 
-reg clock, start, reset;
+reg clock, en, reset;
 
 wire [`BIT_WIDTH-1:0] result;
 
@@ -41,9 +41,9 @@ wire correct = (cres==result)|~done;
 integer i, j;
 
 pipe_mult #(`BIT_WIDTH, `STAGES) m0
-  (.clk_i(clock), .rst_i(reset),
+  (.clk(clock), .rst(reset),
    .multiplier_i(stage_a[0]), .multicand_i(stage_b[0]),
-   .start_i(start), .product_o(result), .done_o(done));
+   .en(en), .product_o(result), .done_o(done));
 
 always @(posedge clock)
   for(j=0;j<`STAGES;j=j+1) begin
@@ -79,44 +79,44 @@ initial begin
   stage_b[0]=3;
   reset=1;
   clock=0;
-  start=1;
+  en=1;
 
   @(negedge clock);
   reset=0;
   @(negedge clock);
-  start=0;
+  en=0;
   @(posedge done);
   @(negedge clock);
-  start=1;
+  en=1;
   stage_a[0]=-1;
   @(negedge clock);
-  start=0;
+  en=0;
   @(posedge done);
   @(negedge clock);
   @(negedge clock);
-  start=1;
+  en=1;
   stage_a[0]=-20;
   stage_b[0]=5;
   @(negedge clock);
-  start=0;
+  en=0;
   @(posedge done);
   @(negedge clock);
 
   $display ("Interface test");
   for(i=0;i<100;i=i+1)
   begin
-    start=1;
+    en=1;
     stage_a[0]={$random,$random};
     stage_b[0]={$random,$random};
     @(negedge clock);
-    start=0;
+    en=0;
     @(posedge done);
     @(negedge clock);
   end
   $display ("Pipelined test");
   for(i=0;i<100;i=i+1)
   begin
-    start=1;
+    en=1;
     stage_a[0]={$random,$random};
     stage_b[0]={$random,$random};
     @(negedge clock);
