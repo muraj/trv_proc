@@ -20,7 +20,7 @@ addons:
 env:
   matrix:
     - SYNTH=
-    - SYNTH=`which yosys`
+    - SYNTH="$(which yosys)"
 
 before_script:
   - make --no-print-directory
