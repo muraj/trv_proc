@@ -18,11 +18,11 @@ addons:
       - yosys
 
 env:
-  - SYNTH=
-  - SYNTH=synth_
+  - SYNTH_KW=
+  - SYNTH_KW=synth_
 
 before_script:
-  - make --no-print-directory ${SYNTH}build
+  - make --no-print-directory ${SYNTH_KW}build
 
 script:
-  - make --no-print-directory --keep-going ${SYNTH}test
+  - make --no-print-directory --keep-going ${SYNTH_KW}test
