@@ -25,7 +25,10 @@ OUT := out
 MODULE_TESTS := $(basename $(wildcard *_tb.v))
 PROG_TESTS := $(basename $(notdir $(wildcard progs/*_prog.s)))
 
-ifneq ($(SYNTH),)
+ifeq ($(SYNTH),)
+	SIM_MODULE_TESTS := $(MODULE_TESTS)
+	SIM_PROG_TESTS := $(PROG_TESTS)
+else
 	SYNTH_MODULE_TESTS := $(subst _tb,_synth_tb,$(MODULE_TESTS))
 	SYNTH_PROG_TESTS := $(subst _tb,_synth_tb,$(PROG_TESTS))
 endif
@@ -69,11 +72,11 @@ prog_runner:	progs/prog_runner.v
 	@if $(MAKE) $*_tb.run | grep -q '*** PASSED ***'; then echo PASSED; else echo FAILED; exit 1; fi
 
 build:	$(OUT)
-	@$(MAKE) $(addsuffix .build,$(MODULE_TESTS) $(SYNTH_MODULE_TESTS) $(PROG_TESTS))
+	@$(MAKE) $(addsuffix .build,$(SIM_MODULE_TESTS) $(SYNTH_MODULE_TESTS) $(SIM_PROG_TESTS) $(SYNTH_PROG_TESTS))
 test:
-	@if [ ! -z "$(MODULE_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(MODULE_TESTS)); fi
+	@if [ ! -z "$(SIM_MODULE_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(SIM_MODULE_TESTS)); fi
+	@if [ ! -z "$(SIM_PROG_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(SIM_PROG_TESTS)); fi
 	@if [ ! -z "$(SYNTH_MODULE_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(SYNTH_MODULE_TESTS)); fi
-	@if [ ! -z "$(PROG_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(PROG_TESTS)); fi
 	@if [ ! -z "$(SYNTH_PROG_TESTS)" ]; then $(MAKE) $(addsuffix .test,$(SYNTH_PROG_TESTS)); fi
 clean:
 	$(RM) -r $(OUT)

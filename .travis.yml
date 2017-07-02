@@ -17,8 +17,13 @@ addons:
       - iverilog
       - yosys
 
+env:
+  matrix:
+    - SYNTH=
+    - SYNTH=`which yosys`
+
 before_script:
-  - make SYNTH=`which yosys` --no-print-directory
+  - make --no-print-directory
 
 script:
-  - make SYNTH=`which yosys` --no-print-directory --keep-going test
+  - make --no-print-directory --keep-going test
