@@ -1,7 +1,12 @@
 language: c
 
+cache:
+  apt: true
+
 os:
   - linux
+
+dist: trusty
 
 addons:
   apt:
@@ -10,6 +15,7 @@ addons:
     packages:
       - make
       - iverilog
+      - yosys
 
 before_script:
   - make --no-print-directory
