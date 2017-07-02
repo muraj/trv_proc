@@ -18,7 +18,7 @@ addons:
       - yosys
 
 before_script:
-  - make --no-print-directory
+  - make SYNTH=`which yosys` --no-print-directory
 
 script:
-  - make --no-print-directory --keep-going test
+  - make SYNTH=`which yosys` --no-print-directory --keep-going test

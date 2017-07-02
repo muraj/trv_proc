@@ -25,7 +25,7 @@ OUT := out
 MODULE_TESTS := $(basename $(wildcard *_tb.v))
 PROG_TESTS := $(basename $(notdir $(wildcard progs/*_prog.s)))
 
-ifdef ENABLE_SYNTH
+ifneq ($(SYNTH),)
 	SYNTH_MODULE_TESTS := $(subst _tb,_synth_tb,$(MODULE_TESTS))
 	SYNTH_PROG_TESTS := $(subst _tb,_synth_tb,$(PROG_TESTS))
 endif
@@ -38,7 +38,7 @@ $(OUT):
 
 %.v:	$(HEADERS)
 $(OUT)/%_synth.v:	synth.ys %.v
-	yosys -o $@ $*.v synth.ys
+	$(SYNTH) -o $@ $*.v synth.ys
 $(OUT)/%_synth_tb:	%_tb.v $(OUT)/%_synth.v
 	iverilog -o $@ $^ $(VFLAGS)
 $(OUT)/%_tb:	%_tb.v %.v
@@ -52,7 +52,7 @@ $(OUT)/%_tb:	%_tb.v %.v
 	@printf '%-20s ' $*
 	@if $(MAKE) $*_tb.run | grep -q '*** PASSED ***'; then echo PASSED; else echo FAILED; exit 1; fi
 %_tb.waves:	%_tb.build
-	cd $(OUT); $*_tb +WAVES
+	cd $(OUT); ./$*_tb +WAVES=$*.vcd
 
 prog_runner:	progs/prog_runner.v
 	iverilog -o $@ $^
@@ -63,7 +63,7 @@ prog_runner:	progs/prog_runner.v
 %_prog.run:	%_prog.build
 	cd $(OUT); ./prog_runner +testname=$*_prog.bin
 %_prog.waves:	%_prog.build
-	cd $(OUT); ./prog_runner +testname=$*_prog +WAVES
+	cd $(OUT); ./prog_runner +testname=$*_prog +WAVES=$*_prog.vcd
 %_prog.test:
 	@printf '%-20s ' $*
 	@if $(MAKE) $*_tb.run | grep -q '*** PASSED ***'; then echo PASSED; else echo FAILED; exit 1; fi

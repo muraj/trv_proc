@@ -21,10 +21,11 @@
 */
 
 `define BIT_WIDTH 32
-`define STAGES 16
+`define STAGES 8
 
 module pipe_mult_tb();
 
+reg [1024*8-1:0] vcdfn;
 reg [`BIT_WIDTH-1:0] stage_a[`STAGES:0];
 reg [`BIT_WIDTH-1:0] stage_b[`STAGES:0];
 
@@ -66,8 +67,8 @@ end
 
 initial begin
 
-  if ($test$plusargs("WAVES")) begin
-    $dumpfile("pipe_mult_tb.vcd");
+  if ($value$plusargs("WAVES=%s",vcdfn)) begin
+    $dumpfile(vcdfn);
     $dumpvars(0, pipe_mult_tb);
   end
 
@@ -100,6 +101,7 @@ initial begin
   start=0;
   @(posedge done);
   @(negedge clock);
+
   $display ("Interface test");
   for(i=0;i<100;i=i+1)
   begin
@@ -120,6 +122,7 @@ initial begin
     @(negedge clock);
   end
   $display ("*** PASSED ***"); 
+
   $finish;
 end
 
