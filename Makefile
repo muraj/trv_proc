@@ -18,12 +18,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-HEADERS := $(wildcard *.vh)
+HEADERS := $(wildcard rtl/*.vh)
 VFLAGS :=
 OUT := out
 
-MODULE_TESTS := $(basename $(wildcard *_tb.v))
-PROG_TESTS := $(basename $(notdir $(wildcard progs/*_prog.s)))
+MODULE_TESTS := $(notdir $(basename $(wildcard tb/*_tb.v)))
+PROG_TESTS := $(notdir $(basename $(notdir $(wildcard progs/*_prog.s))))
 
 ifeq ($(SYNTH),)
 	SIM_MODULE_TESTS := $(MODULE_TESTS)
@@ -39,12 +39,12 @@ all:	build
 $(OUT):
 	-@mkdir -p $@
 
-%.v:	$(HEADERS)
-$(OUT)/%_synth.v:	synth.ys %.v
-	$(SYNTH) -o $@ $*.v synth.ys
-$(OUT)/%_synth_tb:	%_tb.v $(OUT)/%_synth.v
+rtl/%.v:	$(HEADERS)
+$(OUT)/%_synth.v:	synth.ys rtl/%.v
+	$(SYNTH) -o $@ rtl/$*.v synth.ys
+$(OUT)/%_synth_tb:	tb/%_tb.v $(OUT)/%_synth.v
 	iverilog -o $@ $^ $(VFLAGS)
-$(OUT)/%_tb:	%_tb.v %.v
+$(OUT)/%_tb:	tb/%_tb.v rtl/%.v
 	iverilog -o $@ $^ $(VFLAGS)
 
 %_tb.build:	$(OUT)
