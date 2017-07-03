@@ -46,7 +46,7 @@ rtl/%.v:	$(HEADERS)
 $(OUT)/%_synth.v:	rtl/%.v module_parameters.mk
 	$(SYNTH) -o $@ $< -q -l $(OUT)/$*_synth.log \
 		-p "read_liberty -lib synth/stdcells.lib" \
-		-p "synth -top pipe_mult" \
+		-p "synth -top $*" \
 		-p "flatten" \
 		-p "check -assert" \
 		-p "dfflibmap -liberty synth/stdcells.lib" \
