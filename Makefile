@@ -47,6 +47,8 @@ $(OUT)/%_synth.v:	rtl/%.v module_parameters.mk
 	$(SYNTH) -o $@ $< -q -l $(OUT)/$*_synth.log \
 		-p "read_liberty -lib synth/stdcells.lib" \
 		-p "synth -top pipe_mult" \
+		-p "flatten" \
+		-p "check -assert" \
 		-p "dfflibmap -liberty synth/stdcells.lib" \
 		-p "abc -constr synth/stdcells.constr -dff -liberty synth/stdcells.lib -D $(DELAY)" \
 		-p "stat -liberty synth/stdcells.lib"
