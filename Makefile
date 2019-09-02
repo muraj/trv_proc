@@ -50,8 +50,8 @@ $(OUT)/%_synth.v:	rtl/%.v module_parameters.mk
 		-p "flatten" \
 		-p "check -assert" \
 		-p "dfflibmap -liberty synth/stdcells.lib" \
-		-p "abc -constr synth/stdcells.constr -dff -liberty synth/stdcells.lib -D $(DELAY)" \
-		-p "stat -liberty synth/stdcells.lib"
+		-p "abc -constr synth/stdcells.constr -dff -liberty synth/stdcells.lib -markgroups -D $(DELAY)" \
+		-p "stat -width"
 $(OUT)/%_synth_tb:	tb/%_tb.v $(OUT)/%_synth.v
 	$(VERILOG) -o $@ $^ synth/stdcells.v $(VFLAGS)
 $(OUT)/%_tb:	tb/%_tb.v rtl/%.v
